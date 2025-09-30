@@ -87,7 +87,7 @@ Generation of Rules for Firewall or Intrusion Detection Systems}
 \begin{abstract}
  Large Language Models (LLMs) have the potential to aid in closing
 the knowledge gap in several specific technical areas, such as cybersecurity, by providing a means to translate instructions defined
-in natural language into specialized system or software specifications (e.g., firewall rules). The work described herein aims at an
+in natural language into specialized system or software specifications ({\itshape e.g.}, firewall rules). The work described herein aims at an
 evaluation of the capability of LLMs to generate rules for firewall
 and Intrusion Detection Systems (IDSs). A preliminary assessment
 has shown that widely available chat bots have limited capability
@@ -169,95 +169,327 @@ firewalls and IDSs can indeed be achieved.
 \maketitle
 
 \section{Introduction}
-ACM's consolidated article template, introduced in 2017, provides a
-consistent \LaTeX\ style for use across ACM publications, and
-incorporates accessibility and metadata-extraction functionality
-necessary for future Digital Library endeavors. Numerous ACM and
-SIG-specific \LaTeX\ templates have been examined, and their unique
-features incorporated into this single new template.
+The recent advancements in Large Language Models (LLMs) have
+brought renewed attention to Artificial Intelligence (AI). The text
+generation capability of LLMs, publicly and easily accessible via
+chatbots, finds many different application scenarios \cite{Kaddour23, Okonkwo21, Reis20}
 
-If you are new to publishing with ACM, this document is a valuable
-guide to the process of preparing your work for publication. If you
-have published with ACM before, this document provides insight and
-instruction into more recent changes to the article template.
+and
+shows potential to magnify human knowledge or aid in closing a
+knowledge gap in several specific technical areas, namely in computer science where {\itshape e.g.}, it is currently used in code development
+assistance (by over 92\%\ of U.S.-based developers) \cite{Shani23}.
 
-The ``\verb|acmart|'' document class can be used to prepare articles
-for any ACM publication --- conference or journal, and for any stage
-of publication, from review to final ``camera-ready'' copy, to the
-author's own version, with {\itshape very} few changes to the source.
+. These models, which are capable of engaging in meaningful conversations
+with humans, also might lead to the creation of erroneous or fictional information \cite{Chen23, Kabir23} whose consequences vary depending on
+the use of the outputs and the application scenario. The work described herein aimed at (preliminarily) evaluating the capability of
+LLMs, available in 2024, translating instructions defined in natural
+language into rules for firewalls or Intrusion Detection Systems
+(IDSs). The creation of such rules sometimes poses challenges even
+for seasoned system administrators, as they are specific to a highly
+technical and frequently changing area.
+The fact that LLMs have undergone training on an extensive
+range of Internet-available data allows them to understand and
+respond to diverse queries and tasks. This includes the ability to
+translate natural language into various programming languages,
+scripts or configurations for cybersecurity tools. For instance, one
+might ask a chat bot to generate an {\itshape iptables} rule to prevent a specific
+cyberattack, providing only the name of the attack and relying on
+the ability of the model to extrapolate the necessary information to
+compose a relevant and effective rule. The chat bot will probably
+produce a rule, as examples are found in specialized forums on
+the Internet (and thus in the aforementioned datasets). The rule might even look syntactically correct, which makes it harder to
+evaluate if it is appropriate or useful. Currently available LLMs did
+not receive explicit training on cybersecurity, let alone specifically
+in the generation of firewall and IDS rules and their responses
+may not always align with the intended security goals. The risk
+of generating erroneous or suboptimal rules raises concerns about
+the reliability of using such models in practical security settings.
+Initially motivated by these doubts, a (human) analysis was conducted, to explore how well the available chat bots are able to write
+firewall and IDS rules and then followed up with a look into the
+possibility of fine-tuning these language models for this specific
+task. This work was conducted resorting to easily available LLMs
+and open-source tools or systems. For example, {\itshape iptables} \cite{Russsell98} and {\itshape Snort} \cite{Shaqiri21} were chosen as the target firewall and IDS.
+The main contributions of this work can be summarised as follows:
+\begin{itemize}
+\item A study (and conclusions) of the capacity of currently available chat bots to generate firewall and IDS rules;
+\item Increasing awareness on the use of chat bots for automated
+generation of security settings, and on how these can provide erroneous information, and should be relied upon with
+utmost care and always under supervision;
+\item A dataset containing a collection of prompts describing attacks and the corresponding rules for {\itshape iptables} and {\itshape Snort};
+\item An analysis of different approaches to fine-tuning with comparisons and conclusions;
+\item An analysis of the difference between pre-tuned and finetuned models with comparisons and conclusions.
+\end{itemize}
+The remainder of this paper is structured as follows: section 2
+elaborates on related works and background; section 3 delves into
+the analysis of the capability of current chat bots, the methodology used and some of its conclusions, and the fine-tuning method
+and approaches that will be used; section 4 looks into the results
+obtained from the fine-tuning, the conclusions drawn and comparisons between pre-tuned and fine-tuned models; finally, section 5
+presents the conclusions and future work.
 
-\section{Template Overview}
-As noted in the introduction, the ``\verb|acmart|'' document class can
-be used to prepare many different kinds of documentation --- a
-double-anonymous initial submission of a full-length technical paper, a
-two-page SIGGRAPH Emerging Technologies abstract, a ``camera-ready''
-journal article, a SIGCHI Extended Abstract, and more --- all by
-selecting the appropriate {\itshape template style} and {\itshape
-  template parameters}.
+
+\section{RELATED WORKS AND BACKGROUND}
+The use of chat bots in different technical fields has become a focus
+of interest recently, namely in cybersecurity. The use of chat bots for
+writing and defining firewall and IDS rules, as approached herein, is
+a specific application in this broader field. While no specific equivalent approaches have been found in the literature, SecBot \cite{Franco20, Shaqiri21}
+shows relatable inspiration, though following a different approach
+and with different (yet relatable) final objectives. Fine-tuning techniques have also been analysed and used to customize chat bots
+in different fields, showing the validity of this approach to improve their applicability in specific areas. This section identifies
+and explores several works that reflect the research in this area,
+highlighting the opportunities these novel approaches bring.
 
 This document will explain the major features of the document
 class. For further information, the {\itshape \LaTeX\ User's Guide} is
 available from
 \url{https://www.acm.org/publications/proceedings-template}.
 
-\subsection{Template Styles}
+\subsection{SecBot}
 
-The primary parameter given to the ``\verb|acmart|'' document class is
-the {\itshape template style} which corresponds to the kind of publication
-or SIG publishing the work. This parameter is enclosed in square
-brackets and is a part of the {\verb|documentclass|} command:
-\begin{verbatim}
-  \documentclass[STYLE]{acmart}
-\end{verbatim}
+{\itshape SecBot}  \cite{Franco20, Shaqiri21}  is a chat bot that aims to aid businesses through
+support in cybersecurity planning and management. It identifies cyberattacks based on related symptoms, and indicates solutions and
+configurations according to business demands, providing insightful information for the investments and risks that come with certain decisions regarding cybersecurity. {\itshape SecBot}, as a language model, is fed
+with information specific to the business, such as budget, and also
+specific terms or values that it may need for its analysis, requesting
+information that could not be ascertained from the initial prompt.
+After the information retrieval stage and starting from a list of
+attacks, the chat bot recommends a solution based on the requests
+of the user and the performed business analysis. This recommendation is achieved by following pre-written rules, using language
+processing to extract the required information, and defining the
+solution to be outputted. {\itshape SecBot} has a similar philosophy with that
+of this work, {\itshape i.e.}, its purpose is to output recommendations in the
+cybersecurity field, but differs in being business oriented, and being
+purpose built, with its rules already defined in its construction.
 
-Journals use one of three template styles. All but three ACM journals
-use the {\verb|acmsmall|} template style:
+\subsection{Fine-tuning Chat Bots}
+
+Fine-tuning is a type of technique that provides an LLM with a set
+of specific prompts and example responses, with the final purpose
+of improving the output capabilities of the model for that specific
+subset of knowledge. The work described in \cite{Peng23} uses the Generative Pre-trained Transformer (GPT)-4 to generate responses to 52
+000 instructions, to then perform the same procedure again but
+in Chinese, by translating the instructions and having ChatGPT-4
+answer them in Chinese also. This procedure was used to generate
+datasets to fine-tune other models (in this case, LLaMA 7B). The
+fine-tuned version of LLaMA 7B showed a strong improvement
+in performance, validating the use of fine-tuning. \cite{Bill23} used reinforcement learning from human feedback for a therapy chat bot, by
+using interactions between therapists and clients to fine-tune the
+model. No significant differences were seen between the pre-trained
+model and the fine-tuned one, attributed by the authors to the low
+amount of data used, a limitation to be further explored in future
+work. This shows that, while fine-tuning is a valid approach to improve the output of LLMs, it is not a guaranteed success, requiring
+a well-constructed dataset to achieve the objective of improving
+the outputs of the model for the specific field.
+
+\subsection{Chat Bots in Other Security Settings}
+The use of chat bots in cybersecurity-specific areas, such as data
+protection, privacy, and other social aspects, and the concerns about
+cybersecurity due to their use, have been a topic of discussion in
+several works. Data protection and privacy are important aspects
+when considering the use of chat bots and LLMs \cite{Sebastian23} for several
+reasons, namely ethical considerations (the personal data of users
+should not be shared, and any bias should be avoided), building user
+trust, maintaining data integrity, and reducing the risk of adverse
+attacks.
+There are also privacy risks and data leakage concerns \cite{Hasal21}, namely
+the unintentional sharing of sensitive information during transmission and data poisoning, factors that can influence the behavior
+of the model. Finally, there are recommendations to mitigate privacy risks and strengthen data protection, which can include data
+anonymization, the use of privacy-aware machine learning algorithms, adversarial training, robust training (for example, using
+contradictory examples to improve the model, and testing how
+the model handles these unusual or unexpected examples), data verification, limiting the rate of requests, and the use of encryption.
+In addition to these studies, the work in \cite{Bozic18} focused on testing
+and analyzing how vulnerable a chat bot is to hackers. For this
+purpose, a framework was created to test whether or not chat bots
+are vulnerable to Cross-Site Scripting (XSS) and Structured Query
+Language (SQL) injections, and the results obtained were positive,
+as they provided evidence that the chat bot used was resistant to
+these common attacks.
+The authors of \cite{Hilario24} approached using ChatGPT in pen-testing,
+showing the benefits, challenges, risks and consequences of integrating generative AI tools into traditional pen-testing frameworks.
+The benefits mentioned include improved efficiency and continuous
+learning, while the risks and consequences include overreliance
+and ethical, legal, and bias concerns. The work in \cite{Temara23} also explored
+pen-testing using ChatGPT, and it focused specifically on the recognition phase, concluding that it is a valuable tool, as it provides
+insightful information. In addition, it is worth noting that the way
+the prompt is written affects the response given by the chat bot,
+something to consider when creating a set of prompts, either for
+receiving answers from the model or to create, {\itshape e.g.}, a dataset for
+fine-tuning a model. Qammar {\itshape et al.} \cite{Qammar23} investigated the capability
+of ChatGPT to generate malicious code or messages to produce
+attacks against common systems/users ({\itshape e.g.}, generate phishing emails). The authors concluded that ChatGPT can successfully create
+malicious code and messages, highlighting the capacity to produce
+undetectable zero-day attacks.
+Chat bots and LLMs can either be useful tools for cybersecurity,
+the cause of cybersecurity issues, or recipients of analysis and
+information security techniques (to make them robust to attacks).
+This section highlights the potential to use LLMs for the purpose
+described herein, as they were used in similar contexts for other
+objectives. Nonetheless, the usefulness of these models and chat
+bots needs to be carefully considered in light of potential issues that
+might arise from misuse or incorrect outputs, partially motivating
+the work presented herein.
+the dataset, the instructions to replicate the experiments are also
+included therein. The attacks were used to write prompts for the
+chat bots, and an analysis of how they responded to the different prompts was conducted, and are described in the subsequent
+sections.
+
+\subsubsection{{\itshape  Identifying Cyberattacks and Rules.}}
+A total of thirty cyberattacks were identified, and the corresponding efficient and correct
+{\itshape iptables} and {\itshape Snort} rules were crafted or collected from the official
+documentation. The majority of the identified attacks are Denial
+of Service (DoS) or Distributed Denial of Service (DDoS) attacks,
+including, but not limited to, floods ({\itshape e.g.}, UDP flooding) and low
+and slow attacks ({\itshape e.g.}, Slowloris). Other attacks include buffer and
+integer overflow exploits, MySQL/SQL injections, shellcode exploits
+and XSS.
+
+\subsubsection{{\itshape Writing Prompts for each Cyberattack}}
+
+Motivated by one of the previously mentioned works \cite{Temara23},  and by the need to understand
+how differently crafted prompts could affect the responses given
+by the chat bots, a total of three different prompts were written
+for each cyberattack. These three different prompts are intended
+to exemplify how people with different levels of knowledge may
+request the chat bot to create a rule for a cyberattack.
+The first type of prompt concerns a simple prompt with just the
+name of the attack (without any specific technical details), which is
+expected from a person with no knowledge of the subject, and who
+has only researched the most common attacks. The second type
+of prompt explains the attack on a more technical level, which is
+expected from people who understand the attack methodology but
+do not know how to prevent it. The third type of prompt explicitly
+states what the rule should do, {\itshape i.e.}, it gives the answer to solve
+the problem, which is expected from people who know how to
+avoid this type of attack and with basic knowledge on how to write
+{\itshape iptables} and {\itshape Snort} rules. For example, the following represent the
+three types of prompts for the Ping of Death attack:
 \begin{itemize}
-\item {\texttt{acmsmall}}: The default journal template style.
-\item {\texttt{acmlarge}}: Used by JOCCH and TAP.
-\item {\texttt{acmtog}}: Used by TOG.
+  \item First Prompt - {\itshape Write an iptables rule to avoid Ping of Death
+attacks;}
+\item Second Prompt - {\itshape Write an iptables rule that avoids an attack in
+which the attacker sends a malformed ping packet that exceeds
+the maximum IPv4 packet size;}
+\item Third Prompt - {\itshape Write an iptables rule that drops ICMP packets
+with a length greater than 65,535 bytes.}
 \end{itemize}
 
-The majority of conference proceedings documentation will use the {\verb|acmconf|} template style.
-\begin{itemize}
-\item {\texttt{sigconf}}: The default proceedings template style.
-\item{\texttt{sigchi}}: Used for SIGCHI conference articles.
-\item{\texttt{sigplan}}: Used for SIGPLAN conference articles.
-\end{itemize}
+\subsubsection{{\itshape Choosing Chat Bots.}}
 
-\subsection{Template Parameters}
+After establishing the prompts, a set of chat bots were selected to test their responses to the different
+queries, as to evaluate their capabilities, before any fine-tuning, in
+terms of crafting the correct rules. The responses were manually
+evaluated, checking the correctness of the created rules, both on a
+syntactic and on a technical level.
+The chosen chat bots were ChatGPT \cite{OpenAI22}, LLaMA \cite{Meta23}, Mistral
+7B  \cite{Jiang23}, and GPT4All Falcon, Wizard v1.1 and Nous-Hermes  \cite{Anand23}. The first two were chosen due to their status as state-of-the-art chat
+bots. ChatGPT 3.5 and LLaMA 2 7B were also selected, the first due
+to it being the currently publicly available free version of ChatGPT,
+and the latter due to hardware limitations. Mistral 7B was selected
+due to outperforming LLaMA 2 13B in all the benchmarks where
+it has been evaluated, and also outperforming LLaMA 1 34B in
+code generation, among other aspects. The last three models were chosen due to being less Random Access Memory (RAM)-intensive
+compared to the majority of available, high performing LLMs, a
+potential bottleneck when running them locally and fine-tuning
+them. Falcon only requires 8GB of RAM, with Wizard v1.1 and NousHermes requiring 16GB. As seen in the benchmarks published by
+GPT4All \cite{Anand23}, these three models achieve some of the best results
+in these memory-constrained scenarios, not taking into account
+quantized models, {\itshape i.e.}, a technique that reduces computational and
+memory costs by using weights and activations with low-precision
+data types, such as 4-bit normalized float, instead of the usual 32-bit
+float.
 
-In addition to specifying the {\itshape template style} to be used in
-formatting your work, there are a number of {\itshape template parameters}
-which modify some part of the applied template style. A complete list
-of these parameters can be found in the {\itshape \LaTeX\ User's Guide.}
+\subsubsection{{\itshape Rule Writing Capability}}
 
-Frequently-used parameters, or combinations of parameters, include:
-\begin{itemize}
-\item {\texttt{anonymous,review}}: Suitable for a ``double-anonymous''
-  conference submission. Anonymizes the work and includes line
-  numbers. Use with the \texttt{\string\acmSubmissionID} command to print the
-  submission's unique ID on each page of the work.
-\item{\texttt{authorversion}}: Produces a version of the work suitable
-  for posting by the author.
-\item{\texttt{screen}}: Produces colored hyperlinks.
-\end{itemize}
+The following step was the evaluation of the chat bots and their capabilities in terms of generating the
+expected outputs from the crafted prompts dataset. Table 1 shows
+the achieved results for each of the tested models. The success rate
+was calculated by humanly analysing the answers of the chat bots
+to the prompts and considering as correct those answers that contained the correct and efficient rule for the corresponding attack.
+ChatGPT 3.5 achieved the best results, with a success rate of 42\%\ ,
+from a total of 53 correct answers out of the 126 questions. Though
+the success rate appears low, the majority of fails were due to minor
+deviations from the correct answer. LLaMA 2 7B failed all 126 questions, showing minimal knowledge of {\itshape iptables} and {\itshape Snort}. Mistral
+7B model correctly answered a total of five out of the 126 questions and, compared to the LLaMA 2 7B, it showed overall stronger
+knowledge of {\itshape iptables} and {\itshape Snort}. Of the 126 questions, GPT4All
+Falcon succeeded only once, Nous-Hermes twice and Wizard v1.1
+zero times, with the latter model showing very little knowledge
+of {\itshape iptables}, and even less of {\itshape Snort}. It is probable that the superior
+results obtained for ChatGPT are related to the potentially much
+larger (and diverse) dataset with which it was trained.
+The conclusion to be drawn from these results is that chat bots
+do indeed give erroneous information, at least when generating
+security-related instructions without being specifically trained. As
+such, their answers should always be handled with caution. This
+analysis intended to be used as a way of raising awareness to this
+fact, and as a systematic study on the capacity of several currently
+available chat bots, which will be studied in greater depth in the
+next section.
 
-This document uses the following string as the first command in the
-source file:
-\begin{verbatim}
-\documentclass[sigconf]{acmart}
-\end{verbatim}
+\begin{tabularx}{0.8\textwidth} { 
+  | >{\raggedright\arraybackslash}X 
+  | >{\centering\arraybackslash}X 
+  | >{\raggedleft\arraybackslash}X | }
+ \hline
+{\bfseries Model & Correct Answers & Success Rate \\}
 
-\section{Modifications}
+ ChatGPT 3.5 & 53 out of 126 & 42\% \\
+ \hline
+ LLaMA 2 7B  & 0 out of 126  & 0\%  \\
+  \hline
+ Mistral 7B   & 5 out of 126  & 4\%  \\
+  \hline
+ GPT4All Falcon  & 1 out of 126  & <1\%  \\
+  \hline
+ Nous-Hermes   & 2 out of 126  & simbolo aproximado 2\%  \\
+  \hline
+ Wizard  & 0 out of 126  & 0\%  \\
+\hline
+\end{tabularx}
 
-Modifying the template --- including but not limited to: adjusting
-margins, typeface sizes, line spacing, paragraph and list definitions,
-and the use of the \verb|\vspace| command to manually adjust the
-vertical spacing between elements of your work --- is not allowed.
 
-{\bfseries Your document will be returned to you for revision if
-  modifications are discovered.}
+\subsection{Analysis of Data Collection}
+
+This subsection contains a detailed analysis of the achieved results
+and related conclusions in regards to the capabilities of chat bots
+to produce rules for {\itshape iptables} and {\itshape Snort}.
+
+\subsubsection{{\itshape  Results for Different Types of Prompts.}}
+
+In terms of success
+rate, the third type of prompt was the one leading to better results,
+which was expected and can be explained due to the fact that this
+was the case where the prompt indirectly contained the expected
+answer (even if in natural language), requiring the chat bot to
+only convert it into the appropriate technical language (format) for
+obtaining the rules. The only prompt that GPT4All Falcon model
+got right was one of those prompts; one of the two rules that the
+Nous-Hermes model got right was also a third type of prompt;
+four of the five correct answers from Mistral 7B, and 37 of the 53
+answers correctly given by ChatGPT 3.5 were also of the third type
+of prompts. In total, of the 61 prompts that the models correctly
+answered, 43 were of the third type of prompts, adding up to 70\%
+of the correct answers. From these results, and from what was
+observed during the analysis of the answers given by the chat bots,
+it can be concluded that, when a chat bot has some knowledge of
+the syntax used by the firewall or IDS, it can translate the solution
+provided in natural language into a correct and efficient rule, but
+it may not successfully induce the link between the name of the
+attack or what the attack is doing to the correct solution.
+
+\subsubsection{{\itshape  Results for Iptables and Snort}}
+
+As previously mentioned, all
+the chat bots showed at least some knowledge when it came to
+writing {\itshape iptables} rules, but the same cannot be said for {\itshape Snort}, and the
+results corroborate this conclusion: the Nous-Hermes and GPT4All
+Falcon models only got {\itshape iptables} rules correctly; out of the five
+correct answers from Mistral 7B, three were {\itshape iptables} rules; ChatGPT
+3.5 correctly crafted approximately 58\% of the {\itshape iptables} rules, almost
+double the percentage of correct answers for the {\itshape Snort} rules (33\%)
+
+\subsection{Fine-tuning Method}
+
+
+
 
 \section{Typefaces}
 
