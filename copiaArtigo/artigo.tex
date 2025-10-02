@@ -1,7 +1,6 @@
 \documentclass[sigconf]{acmart}
 
 \usepackage{booktabs} % For professional looking tables
-\usepackage{lipsum}   % For placeholder text, can be removed
 
 %%
 %% \BibTeX command to typeset BibTeX logo in the docs
@@ -9,8 +8,8 @@
   \providecommand\BibTeX{{%
     \normalfont B\kern-0.5em{\scshape i\kern-0.25em b}\kern-0.8em\TeX}}}
 
-%% Rights management information.
-\setcopyright{acmcopyright}
+\setcopyright{rightsretained} 
+
 \copyrightyear{2024}
 \acmYear{2024}
 \acmDOI{10.1145/3664476.3670902}
@@ -26,51 +25,52 @@
 \title{Analysis of the Capability and Training of Chat Bots in the Generation of Rules for Firewall or Intrusion Detection Systems}
 
 \author{Bernardo Louro}
-\email{bernardo.louro@ubi.pt}
 \affiliation{%
-  \institution{Universidade da Beira Interior}
+  \institution{Universidade da Beira Interior,}
   \institution{Instituto de Telecomunicações}
   \city{Covilhã}
   \country{Portugal}
 }
+\email{bernardo.louro@ubi.pt}
 
 \author{Raquel Abreu}
-\email{raquel.filipa.abreu@ubi.pt}
 \affiliation{%
   \institution{Universidade da Beira Interior}
   \city{Covilhã}
   \country{Portugal}
 }
+\email{raquel.filipa.abreu@ubi.pt}
+
 
 \author{Joana C. Costa}
-\email{joana.cabral.costa@ubi.pt}
 \affiliation{%
-  \institution{Universidade da Beira Interior}
+  \institution{Universidade da Beira Interior,}
   \institution{Instituto de Telecomunicações}
   \city{Covilhã}
   \country{Portugal}
 }
+\email{joana.cabral.costa@ubi.pt}
+
 
 \author{João B. F. Sequeiros}
-\email{jbfs@ubi.pt}
 \affiliation{%
-  \institution{Universidade da Beira Interior}
+  \institution{Universidade da Beira Interior,}
   \institution{Instituto de Telecomunicações}
   \city{Covilhã}
   \country{Portugal}
 }
+\email{jbfs@ubi.pt}
 
 \author{Pedro R. M. Inácio}
-\email{prmi@ubi.pt}
 \affiliation{%
-  \institution{Universidade da Beira Interior}
+  \institution{Universidade da Beira Interior,}
   \institution{Instituto de Telecomunicações}
   \city{Covilhã}
   \country{Portugal}
 }
+\email{prmi@ubi.pt}
 
-
-\renewcommand{\shortauthors}{Louro et al.}
+\renewcommand{\shortauthors}{Trovato et al.}
 
 \begin{abstract}
 Large Language Models (LLMs) have the potential to aid in closing the knowledge gap in several specific technical areas, such as cybersecurity, by providing a means to translate instructions defined in natural language into specialized system or software specifications (\textit{e.g.}, firewall rules). The work described herein aims at an evaluation of the capability of LLMs to generate rules for firewall and Intrusion Detection Systems (IDSs). A preliminary assessment has shown that widely available chat bots have limited capability to generate correct rules and that caution is needed when using their outputs for the aforementioned objective. This work explores three fine-tuning approaches to address these limitations, each of them with a different objective and achieving distinct success rates. The first approach aimed at testing how well the model was able to use the knowledge obtained from the prompts when the question was structured differently, achieving a success rate of 89\%. The second approach aimed at testing how well the model could link the knowledge obtained from two different prompts and reached a success rate of 61\%. The final approach aimed at testing if the model could create complex rules by first learning simple rules, achieving a success rate of 79\%. It can be concluded that fine-tuning is sufficient to improve chat bots into creating syntactically and technically correct rules for firewalls and IDSs. Results suggest that the development of a specialized model for as many attacks, firewalls and IDSs can indeed be achieved.
@@ -104,12 +104,10 @@ Large Language Models (LLMs) have the potential to aid in closing the knowledge 
 
 \maketitle
 
-\section{Introduction}
+\section{Introduction}\label{sec:intro}
 The recent advancements in Large Language Models (LLMs) have brought renewed attention to Artificial Intelligence (AI). The text generation capability of LLMs, publicly and easily accessible via chatbots, finds many different application scenarios \cite{Kaddour23, Okonkwo21, Reis20} and shows potential to magnify human knowledge or aid in closing a knowledge gap in several specific technical areas, namely in computer science where \textit{e.g.}, it is currently used in code development assistance (by over 92\% of U.S.-based developers) \cite{Shani23}. These models, which are capable of engaging in meaningful conversations with humans, also might lead to the creation of erroneous or fictional information \cite{Chen23, Kabir23} whose consequences vary depending on the use of the outputs and the application scenario. The work described herein aimed at (preliminarily) evaluating the capability of LLMs, available in 2024, translating instructions defined in natural language into rules for firewalls or Intrusion Detection Systems (IDSs). The creation of such rules sometimes poses challenges even for seasoned system administrators, as they are specific to a highly technical and frequently changing area.
 
-The fact that LLMs have undergone training on an extensive range of Internet-available data allows them to understand and respond to diverse queries and tasks. This includes the ability to translate natural language into various programming languages, scripts or configurations for cybersecurity tools. For instance, one might ask a chat bot to generate an \textit{iptables} rule to prevent a specific cyberattack, providing only the name of the attack and relying on the ability of the model to extrapolate the necessary information to compose a relevant and effective rule. The chat bot will probably produce a rule, as examples are found in specialized forums on the Internet (and thus in the aforementioned datasets). The rule might even look syntactically correct, which makes it harder to evaluate if it is appropriate or useful. Currently available LLMs did not receive explicit training on cybersecurity, let alone specifically in the generation of firewall and IDS rules and their responses may not always align with the intended security goals. The risk of generating erroneous or suboptimal rules raises concerns about the reliability of using such models in practical security settings.
-
-Initially motivated by these doubts, a (human) analysis was conducted, to explore how well the available chat bots are able to write firewall and IDS rules and then followed up with a look into the possibility of fine-tuning these language models for this specific task. This work was conducted resorting to easily available LLMs and open-source tools or systems. For example, \textit{iptables} \cite{Russell98} and \textit{Snort} \cite{Roesch98} were chosen as the target firewall and IDS.
+The fact that LLMs have undergone training on an extensive range of Internet-available data allows them to understand and respond to diverse queries and tasks. This includes the ability to translate natural language into various programming languages, scripts or configurations for cybersecurity tools. For instance, one might ask a chat bot to generate an \textit{iptables} rule to prevent a specific cyberattack, providing only the name of the attack and relying on the ability of the model to extrapolate the necessary information to compose a relevant and effective rule. The chat bot will probably produce a rule, as examples are found in specialized forums on the Internet (and thus in the aforementioned datasets). The rule might even look syntactically correct, which makes it harder to evaluate if it is appropriate or useful. Currently available LLMs did not receive explicit training on cybersecurity, let alone specifically in the generation of firewall and IDS rules and their responses may not always align with the intended security goals. The risk of generating erroneous or suboptimal rules raises concerns about the reliability of using such models in practical security settings.Initially motivated by these doubts, a (human) analysis was conducted, to explore how well the available chat bots are able to write firewall and IDS rules and then followed up with a look into the possibility of fine-tuning these language models for this specific task. This work was conducted resorting to easily available LLMs and open-source tools or systems. For example, \textit{iptables} \cite{Russell98} and \textit{Snort} \cite{Roesch98} were chosen as the target firewall and IDS.
 
 The main contributions of this work can be summarised as follows:
 \begin{itemize}
@@ -119,10 +117,14 @@ The main contributions of this work can be summarised as follows:
     \item An analysis of different approaches to fine-tuning with comparisons and conclusions;
     \item An analysis of the difference between pre-tuned and fine-tuned models with comparisons and conclusions.
 \end{itemize}
+The remainder of this paper is structured as follows: section~\ref{sec:related}
+elaborates on related works and background; section~\ref{sec:apparatus} delves into
+the analysis of the capability of current chat bots, the methodology used and some of its conclusions, and the fine-tuning method
+and approaches that will be used; section~\ref{sec:results} looks into the results
+obtained from the fine-tuning, the conclusions drawn and comparisons between pre-tuned and fine-tuned models; finally, section~\ref{sec:conclusion}
+presents the conclusions and future work.
 
-The remainder of this paper is structured as follows: section 2 elaborates on related works and background; section 3 delves into the analysis of the capability of current chat bots, the methodology used and some of its conclusions, and the fine-tuning method and approaches that will be used; section 4 looks into the results obtained from the fine-tuning, the conclusions drawn and comparisons between pre-tuned and fine-tuned models; finally, section 5 presents the conclusions and future work.
-
-\section{Related Works and Background}
+\section{Related Works and Background}\label{sec:related}
 The use of chat bots in different technical fields has become a focus of interest recently, namely in cybersecurity. The use of chat bots for writing and defining firewall and IDS rules, as approached herein, is a specific application in this broader field. While no specific equivalent approaches have been found in the literature, SecBot \cite{Franco20, Shaqiri21} shows relatable inspiration, though following a different approach and with different (yet relatable) final objectives. Fine-tuning techniques have also been analysed and used to customize chat bots in different fields, showing the validity of this approach to improve their applicability in specific areas. This section identifies and explores several works that reflect the research in this area, highlighting the opportunities these novel approaches bring.
 
 \subsection{SecBot}
@@ -132,11 +134,15 @@ The use of chat bots in different technical fields has become a focus of interes
 Fine-tuning is a type of technique that provides an LLM with a set of specific prompts and example responses, with the final purpose of improving the output capabilities of the model for that specific subset of knowledge. The work described in \cite{Peng23} uses the Generative Pre-trained Transformer (GPT)-4 to generate responses to 52,000 instructions, to then perform the same procedure again but in Chinese, by translating the instructions and having ChatGPT-4 answer them in Chinese also. This procedure was used to generate datasets to fine-tune other models (in this case, LLaMA 7B). The fine-tuned version of LLaMA 7B showed a strong improvement in performance, validating the use of fine-tuning. \cite{Bill23} used reinforcement learning from human feedback for a therapy chat bot, by using interactions between therapists and clients to fine-tune the model. No significant differences were seen between the pre-trained model and the fine-tuned one, attributed by the authors to the low amount of data used, a limitation to be further explored in future work. This shows that, while fine-tuning is a valid approach to improve the output of LLMs, it is not a guaranteed success, requiring a well-constructed dataset to achieve the objective of improving the outputs of the model for the specific field.
 
 \subsection{Chat Bots in Other Security Settings}
-The use of chat bots in cybersecurity-specific areas, such as data protection, privacy, and other social aspects, and the concerns about cybersecurity due to their use, have been a topic of discussion in several works. Data protection and privacy are important aspects when considering the use of chat bots and LLMs \cite{Sebastian23} for several reasons, namely ethical considerations (the personal data of users should not be shared, and any bias should be avoided), building user trust, maintaining data integrity, and reducing the risk of adverse attacks. There are also privacy risks and data leakage concerns \cite{Hasal21}, namely the unintentional sharing of sensitive information during transmission and data poisoning, factors that can influence the behavior of the model. Finally, there are recommendations to mitigate privacy risks and strengthen data protection, which can include data anonymization, the use of privacy-aware machine learning algorithms, adversarial training, robust training (for example, using contradictory examples to improve the model, and testing how the model handles these unusual or unexpected examples), data verification, limiting the rate of requests, and the use of encryption. In addition to these studies, the work in \cite{Bozic18} focused on testing and analyzing how vulnerable a chat bot is to hackers. For this purpose, a framework was created to test whether or not chat bots are vulnerable to Cross-Site Scripting (XSS) and Structured Query Language (SQL) injections, and the results obtained were positive, as they provided evidence that the chat bot used was resistant to these common attacks. The authors of \cite{Hilario24} approached using ChatGPT in pen-testing, showing the benefits, challenges, risks and consequences of integrating generative AI tools into traditional pen-testing frameworks. The benefits mentioned include improved efficiency and continuous learning, while the risks and consequences include overreliance and ethical, legal, and bias concerns. The work in \cite{Temara23} also explored pen-testing using ChatGPT, and it focused specifically on the recognition phase, concluding that it is a valuable tool, as it provides insightful information. In addition, it is worth noting that the way the prompt is written affects the response given by the chat bot, something to consider when creating a set of prompts, either for receiving answers from the model or to create, \textit{e.g.}, a dataset for fine-tuning a model. Qammar \textit{et al.} \cite{Qammar23} investigated the capability of ChatGPT to generate malicious code or messages to produce attacks against common systems/users (\textit{e.g.}, generate phishing emails). The authors concluded that ChatGPT can successfully create malicious code and messages, highlighting the capacity to produce undetectable zero-day attacks.
+The use of chat bots in cybersecurity-specific areas, such as data protection, privacy, and other social aspects, and the concerns about cybersecurity due to their use, have been a topic of discussion in several works. Data protection and privacy are important aspects when considering the use of chat bots and LLMs \cite{Sebastian23} for several reasons, namely ethical considerations (the personal data of users should not be shared, and any bias should be avoided), building user trust, maintaining data integrity, and reducing the risk of adverse attacks. 
+
+There are also privacy risks and data leakage concerns \cite{Hasal21}, namely the unintentional sharing of sensitive information during transmission and data poisoning, factors that can influence the behavior of the model. Finally, there are recommendations to mitigate privacy risks and strengthen data protection, which can include data anonymization, the use of privacy-aware machine learning algorithms, adversarial training, robust training (for example, using contradictory examples to improve the model, and testing how the model handles these unusual or unexpected examples), data verification, limiting the rate of requests, and the use of encryption. In addition to these studies, the work in \cite{Bozic18} focused on testing and analyzing how vulnerable a chat bot is to hackers. For this purpose, a framework was created to test whether or not chat bots are vulnerable to Cross-Site Scripting (XSS) and Structured Query Language (SQL) injections, and the results obtained were positive, as they provided evidence that the chat bot used was resistant to these common attacks. 
+
+The authors of \cite{Hilario24} approached using ChatGPT in pen-testing, showing the benefits, challenges, risks and consequences of integrating generative AI tools into traditional pen-testing frameworks. The benefits mentioned include improved efficiency and continuous learning, while the risks and consequences include overreliance and ethical, legal, and bias concerns. The work in \cite{Temara23} also explored pen-testing using ChatGPT, and it focused specifically on the recognition phase, concluding that it is a valuable tool, as it provides insightful information. In addition, it is worth noting that the way the prompt is written affects the response given by the chat bot, something to consider when creating a set of prompts, either for receiving answers from the model or to create, \textit{e.g.}, a dataset for fine-tuning a model. Qammar \textit{et al.} \cite{Qammar23} investigated the capability of ChatGPT to generate malicious code or messages to produce attacks against common systems/users (\textit{e.g.}, generate phishing emails). The authors concluded that ChatGPT can successfully create malicious code and messages, highlighting the capacity to produce undetectable zero-day attacks.
 
 Chat bots and LLMs can either be useful tools for cybersecurity, the cause of cybersecurity issues, or recipients of analysis and information security techniques (to make them robust to attacks). This section highlights the potential to use LLMs for the purpose described herein, as they were used in similar contexts for other objectives. Nonetheless, the usefulness of these models and chat bots needs to be carefully considered in light of potential issues that might arise from misuse or incorrect outputs, partially motivating the work presented herein.
 
-\section{Apparatus}
+\section{Apparatus}\label{sec:apparatus}
 The first phase of this work consists of collecting data through the identification of a set of cyberattacks along with the rules for \textit{iptables} and \textit{Snort} that prevent them both correctly and efficiently. The rules need to be correct in order to prevent the attack from happening, and efficient, so as to only block the specific attack and not legitimate traffic. The dataset created from this collection serves as the foundation for evaluating the rule-writing capabilities of various chat bot models from different prompts. By analyzing the generated rules, it is possible to assess the proficiency of these chat bots, and subsequently compare their performance before and after fine-tuning.
 
 \subsection{Data Collection}
@@ -148,19 +154,22 @@ A total of thirty cyberattacks were identified, and the corresponding efficient 
 \subsubsection{Writing Prompts for each Cyberattack}
 Motivated by one of the previously mentioned works \cite{Temara23}, and by the need to understand how differently crafted prompts could affect the responses given by the chat bots, a total of three different prompts were written for each cyberattack. These three different prompts are intended to exemplify how people with different levels of knowledge may request the chat bot to create a rule for a cyberattack. The first type of prompt concerns a simple prompt with just the name of the attack (without any specific technical details), which is expected from a person with no knowledge of the subject, and who has only researched the most common attacks. The second type of prompt explains the attack on a more technical level, which is expected from people who understand the attack methodology but do not know how to prevent it. The third type of prompt explicitly states what the rule should do, \textit{i.e.}, it gives the answer to solve the problem, which is expected from people who know how to avoid this type of attack and with basic knowledge on how to write \textit{iptables} and \textit{Snort} rules. For example, the following represent the three types of prompts for the Ping of Death attack:
 \begin{itemize}
-    \item \textbf{First Prompt} - Write an \textit{iptables} rule to avoid Ping of Death attacks.
-    \item \textbf{Second Prompt} - Write an \textit{iptables} rule that avoids an attack in which the attacker sends a malformed ping packet that exceeds the maximum IPv4 packet size.
-    \item \textbf{Third Prompt} - Write an \textit{iptables} rule that drops ICMP packets with a length greater than 65,535 bytes.
+    \item First Prompt - Write an \textit{iptables} rule to avoid Ping of Death attacks.
+    \item Second Prompt - Write an \textit{iptables} rule that avoids an attack in which the attacker sends a malformed ping packet that exceeds the maximum IPv4 packet size.
+    \item Third Prompt - Write an \textit{iptables} rule that drops ICMP packets with a length greater than 65,535 bytes.
 \end{itemize}
 
 \subsubsection{Choosing Chat Bots}
-After establishing the prompts, a set of chat bots were selected to test their responses to the different queries, as to evaluate their capabilities, before any fine-tuning, in terms of crafting the correct rules. The responses were manually evaluated, checking the correctness of the created rules, both on a syntactic and on a technical level. The chosen chat bots were ChatGPT \cite{OpenAI22}, LLaMA \cite{Meta23}, Mistral 7B \cite{Jiang23}, and GPT4All Falcon, Wizard v1.1 and Nous-Hermes \cite{Anand23}. The first two were chosen due to their status as state-of-the-art chat bots. ChatGPT 3.5 and LLaMA 2 7B were also selected, the first due to it being the currently publicly available free version of ChatGPT, and the latter due to hardware limitations. Mistral 7B was selected due to outperforming LLaMA 2 13B in all the benchmarks where it has been evaluated, and also outperforming LLaMA 1 34B in code generation, among other aspects. The last three models were chosen due to being less Random Access Memory (RAM)-intensive compared to the majority of available, high performing LLMs, a potential bottleneck when running them locally and fine-tuning them. Falcon only requires 8GB of RAM, with Wizard v1.1 and Nous-Hermes requiring 16GB. As seen in the benchmarks published by GPT4All \cite{Anand23}, these three models achieve some of the best results in these memory-constrained scenarios, not taking into account quantized models, \textit{i.e.}, a technique that reduces computational and memory costs by using weights and activations with low-precision data types, such as 4-bit normalized float, instead of the usual 32-bit float.
+After establishing the prompts, a set of chat bots were selected to test their responses to the different queries, as to evaluate their capabilities, before any fine-tuning, in terms of crafting the correct rules. The responses were manually evaluated, checking the correctness of the created rules, both on a syntactic and on a technical level. 
+
+The chosen chat bots were ChatGPT \cite{OpenAI22}, LLaMA \cite{Meta23}, Mistral 7B \cite{Jiang23}, and GPT4All Falcon, Wizard v1.1 and Nous-Hermes \cite{Anand23}. The first two were chosen due to their status as state-of-the-art chat bots. ChatGPT 3.5 and LLaMA 2 7B were also selected, the first due to it being the currently publicly available free version of ChatGPT, and the latter due to hardware limitations. Mistral 7B was selected due to outperforming LLaMA 2 13B in all the benchmarks where it has been evaluated, and also outperforming LLaMA 1 34B in code generation, among other aspects. The last three models were chosen due to being less Random Access Memory (RAM)-intensive compared to the majority of available, high performing LLMs, a potential bottleneck when running them locally and fine-tuning them. Falcon only requires 8GB of RAM, with Wizard v1.1 and Nous-Hermes requiring 16GB. As seen in the benchmarks published by GPT4All \cite{Anand23}, these three models achieve some of the best results in these memory-constrained scenarios, not taking into account quantized models, \textit{i.e.}, a technique that reduces computational and memory costs by using weights and activations with low-precision data types, such as 4-bit normalized float, instead of the usual 32-bit float.
 
 \subsubsection{Rule Writing Capability}
-The following step was the evaluation of the chat bots and their capabilities in terms of generating the expected outputs from the crafted prompts dataset. Table \ref{tab:baseline} shows the achieved results for each of the tested models. The success rate was calculated by humanly analysing the answers of the chat bots to the prompts and considering as correct those answers that contained the correct and efficient rule for the corresponding attack. ChatGPT 3.5 achieved the best results, with a success rate of 42\%, from a total of 53 correct answers out of the 126 questions. Though the success rate appears low, the majority of fails were due to minor deviations from the correct answer. LLaMA 2 7B failed all 126 questions, showing minimal knowledge of \textit{iptables} and \textit{Snort}. Mistral 7B model correctly answered a total of five out of the 126 questions and, compared to the LLaMA 2 7B, it showed overall stronger knowledge of \textit{iptables} and \textit{Snort}. Of the 126 questions, GPT4All Falcon succeeded only once, Nous-Hermes twice and Wizard v1.1 zero times, with the latter model showing very little knowledge of \textit{iptables}, and even less of \textit{Snort}. It is probable that the superior results obtained for ChatGPT are related to the potentially much larger (and diverse) dataset with which it was trained. The conclusion to be drawn from these results is that chat bots do indeed give erroneous information, at least when generating security-related instructions without being specifically trained. As such, their answers should always be handled with caution. This analysis intended to be used as a way of raising awareness to this fact, and as a systematic study on the capacity of several currently available chat bots, which will be studied in greater depth in the next section.
+The following step was the evaluation of the chat bots and their capabilities in terms of generating the expected outputs from the crafted prompts dataset. Table \ref{tab:baseline} shows the achieved results for each of the tested models. The success rate was calculated by humanly analysing the answers of the chat bots to the prompts and considering as correct those answers that contained the correct and efficient rule for the corresponding attack. ChatGPT 3.5 achieved the best results, with a success rate of 42\%, from a total of 53 correct answers out of the 126 questions. Though the success rate appears low, the majority of fails were due to minor deviations from the correct answer. LLaMA 2 7B failed all 126 questions, showing minimal knowledge of \textit{iptables} and \textit{Snort}. Mistral 7B model correctly answered a total of five out of the 126 questions and, compared to the LLaMA 2 7B, it showed overall stronger knowledge of \textit{iptables} and \textit{Snort}. Of the 126 questions, GPT4All Falcon succeeded only once, Nous-Hermes twice and Wizard v1.1 zero times, with the latter model showing very little knowledge of \textit{iptables}, and even less of \textit{Snort}. It is probable that the superior results obtained for ChatGPT are related to the potentially much larger (and diverse) dataset with which it was trained.
 
+The conclusion to be drawn from these results is that chat bots do indeed give erroneous information, at least when generating security-related instructions without being specifically trained. As such, their answers should always be handled with caution. This analysis intended to be used as a way of raising awareness to this fact, and as a systematic study on the capacity of several currently available chat bots, which will be studied in greater depth in the next section.
 \begin{table}[h]
-  \caption{Baseline performance comparison between different chat bots for generating iptables and Snort rules.}
+  \caption{Baseline performance comparison between different chat bots for generating \textit{iptables} and \textit{Snort} rules.}
   \label{tab:baseline}
   \begin{tabular}{@{}lcc@{}}
     \toprule
@@ -185,7 +194,7 @@ In terms of success rate, the third type of prompt was the one leading to better
 \subsubsection{Results for Iptables and Snort}
 As previously mentioned, all the chat bots showed at least some knowledge when it came to writing \textit{iptables} rules, but the same cannot be said for \textit{Snort}, and the results corroborate this conclusion: the Nous-Hermes and GPT4All Falcon models only got \textit{iptables} rules correctly; out of the five correct answers from Mistral 7B, three were \textit{iptables} rules; ChatGPT 3.5 correctly crafted approximately 58\% of the \textit{iptables} rules, almost double the percentage of correct answers for the \textit{Snort} rules (33\%).
 
-\subsection{Fine-tuning Method}
+\subsection{Fine-tuning Method}\label{sec:fineTuning}
 The supervised learning method was used to fine-tune the model and, due to hardware limitations and time constraints, Unsloth \cite{Han23} was used, since training time is reduced by half, and the use of Video Random Access Memory (VRAM) is also halved. Unsloth achieves this by using quantized models and state-of-the-art Parameter-Efficient Fine-Tuning (PEFT) methods \cite{Mangrulkar22}, such as Low-Rank Adaption of Large Language Models (LoRA) \cite{Hu21} which, in theory, makes the model less efficient, but in reality achieves performances comparable to that of fully fine-tuned models. It should also be noted that this method is more accessible to users than the one involving traditional fine-tuning of a model. This means that, provided the results obtained via this method are equally useful, more people with limited access to computational resources can be encouraged to use these methods for their own projects. This work tested different fine-tuning approaches, materialized by the way the datasets were developed, which will be discussed in more detail in the next section. Either way, it should be mentioned that the parameters were all kept equal for all the models, except one, for the sake of consistency. The exception will be discussed in due time. Table \ref{tab:params} presents the values of the most relevant parameters.
 
 \begin{table}[h]
@@ -206,13 +215,17 @@ The supervised learning method was used to fine-tune the model and, due to hardw
 \end{table}
 
 \subsection{Fine-tuning Approaches}
-To explore the models capability to learn how to produce rules, three fine-tuning approaches were devised and tested. The first approach (A1) consisted of training the model with all the prompts that had been previously created and, when testing the model, structuring the questions differently from the way the model had been trained with, to see if it could still answer them correctly. The dataset for this first approach has a total of 126 prompt-response pairs. The second approach (A2) consisted of training the model with two different types of prompt-response pairs: the first type gave the name of the attack and asked the model for the respective description; the second type asked for a rule that translated that description into the \textit{iptables} or \textit{Snort} format. This was done to analyse if the model could link the attack and the rule through the description. The dataset used has a total of 84 prompt-response pairs. The third approach (A3) was to provide prompts along with simple \textit{iptables} and \textit{Snort} rules, and verify if the model could adapt (\textit{i.e.}, extrapolate from) these simple rules, and use them together to create complex rules to be used to prevent attacks. This dataset has a total of 81 prompt-response pairs. The datasets are available on the GitHub of the project. Each of the aforementioned approaches was separately tested and will be discussed in more detail in the following section.
+To explore the models capability to learn how to produce rules, three fine-tuning approaches were devised and tested. The first approach (A1) consisted of training the model with all the prompts that had been previously created and, when testing the model, structuring the questions differently from the way the model had been trained with, to see if it could still answer them correctly. The dataset for this first approach has a total of 126 prompt-response pairs. The second approach (A2) consisted of training the model with two different types of prompt-response pairs: the first type gave the name of the attack and asked the model for the respective description; the second type asked for a rule that translated that description into the \textit{iptables} or \textit{Snort} format. This was done to analyse if the model could link the attack and the rule through the description. The dataset used has a total of 84 prompt-response pairs. The third approach (A3) was to provide prompts along with simple \textit{iptables} and \textit{Snort} rules, and verify if the model could adapt (\textit{i.e.}, extrapolate from) these simple rules, and use them together to create complex rules to be used to prevent attacks. This dataset has a total of 81 prompt-response pairs. 
 
-\section{Discussion of Results}
+The datasets are available on the GitHub of the project. Each of the aforementioned approaches was separately tested and will be discussed in more detail in the following section.
+
+\section{Discussion of Results}\label{sec:results}
 After fine-tuning, the analysis was extended to different models to gain a better insight into potential response patterns. This section discusses the results obtained from those experiments.
 
 \subsection{Approach 1}
-The first experiment aimed to compare the performance of different models and verifying if the structure of the question would have an impact on the fine-tuned model in terms of the capability to answer correctly. As such, two of the aforementioned models were selected to be fine-tuned and then tested again. The two selected models were LLaMA 2 7B \cite{Touvron23} and Mistral 7B \cite{Jiang23}. Excluding ChatGPT 3.5, whose fine-tuning requires payment, Mistral 7B was the chat bot with the best results in the baseline performance, and LLaMA 2 7B was one of, if not the worst performing model. As such, it is interesting to compare how much this difference would translate into new results after fine-tuning. Interestingly, the difference between the two models was exacerbated during this experiment. After fine-tuning, the LLaMA 2 7B model did not get a single question right, while the Mistral 7B got approximately 89\% right. Both models were fine-tuned until their loss converged. Considering the starting point of both models, the LLaMA 2 7B model took twice as long and twice as many steps to reach that value, being the only model that did not comply with all the parameters listed in Table \ref{tab:params}. These results do not entirely convey the learning capability of the model, as it actually showed some improvements, coming closer to the right answer more often and also demonstrating much more knowledge of syntax, though not outputting completely correct rules. Nevertheless, due to these poor results, LLaMA 2 7B was not further considered in experiments A2 and A3.
+The first experiment aimed to compare the performance of different models and verifying if the structure of the question would have an impact on the fine-tuned model in terms of the capability to answer correctly. As such, two of the aforementioned models were selected to be fine-tuned and then tested again. The two selected models were LLaMA 2 7B \cite{Touvron23} and Mistral 7B \cite{Jiang23}. Excluding ChatGPT 3.5, whose fine-tuning requires payment, Mistral 7B was the chat bot with the best results in the baseline performance, and LLaMA 2 7B was one of, if not the worst performing model. As such, it is interesting to compare how much this difference would translate into new results after fine-tuning. Interestingly, the difference between the two models was exacerbated during this experiment. After fine-tuning, the LLaMA 2 7B model did not get a single question right, while the Mistral 7B got approximately 89\% right. 
+
+Both models were fine-tuned until their loss converged. Considering the starting point of both models, the LLaMA 2 7B model took twice as long and twice as many steps to reach that value, being the only model that did not comply with all the parameters listed in Table \ref{tab:params}. These results do not entirely convey the learning capability of the model, as it actually showed some improvements, coming closer to the right answer more often and also demonstrating much more knowledge of syntax, though not outputting completely correct rules. Nevertheless, due to these poor results, LLaMA 2 7B was not further considered in experiments A2 and A3.
 
 The structure of the prompts used in the dataset always adhered to the following structure:
 \begin{center}
@@ -224,7 +237,11 @@ On the other hand, the testing procedure resorted to slightly different structur
 \textit{What (iptables/snort) rule ...?}, or \\
 \textit{Develop a(n) (iptables/snort) rule to.....}
 \end{center}
-The Mistral 7B achieved an 89\% success rate, as can be seen in Table \ref{tab:finetuned-compare}, meaning it was able to adapt to a different question structure. However, the same does not apply to LLaMA 2 7B, which did not have any improvements when using the same approach. It is a known fact, from the specialized literature \cite{Temara23}, that different wordings of prompts have a strong impact on the quality of the outputs of the chat bots. In the performed experiment, 11\% of the total prompts were unsuccessful for Mistral 7B, corresponding to 14 misses. Of these 14, 13 were obtained for the prompt of the first type (the most generic ones, using only the name of the attack), while the other miss was from a prompt of the second type. After fine-tuning, Mistral 7B did not fail any prompt of the third type, which corroborates the importance of the wording and information provided.
+The Mistral 7B achieved an 89\% success rate, as can be seen in Table \ref{tab:finetuned-compare}, meaning it was able to adapt to a different question structure. However, the same does not apply to LLaMA 2 7B, which did not have any improvements when using the same approach. 
+
+It is a known fact, from the specialized literature \cite{Temara23}, that different wordings of prompts have a strong impact on the quality of the outputs of the chat bots. 
+
+In the performed experiment, 11\% of the total prompts were unsuccessful for Mistral 7B, corresponding to 14 misses. Of these 14, 13 were obtained for the prompt of the first type (the most generic ones, using only the name of the attack), while the other miss was from a prompt of the second type. After fine-tuning, Mistral 7B did not fail any prompt of the third type, which corroborates the importance of the wording and information provided.
 
 \begin{table}[h]
   \caption{Comparison Between Fine-Tuned Models.}
@@ -244,16 +261,50 @@ The Mistral 7B achieved an 89\% success rate, as can be seen in Table \ref{tab:f
 \end{table}
 
 \subsection{Approach 2}
-The second approach was created to test whether the model could use the information from two different prompts, and be able to link them. The first prompt-response pair links the name of the attack with its description, and the second associates the description to the rule. In case the linking is successful and that it provided the name of the attack, the chat bot should then be able to generate a syntactically and technically correct rule. When fine-tuned with the A2 dataset, Mistral 7B achieved a success rate of 61\%, showing that the model was indeed capable of linking different prompt-response pairs to an extent, though the results were inferior to those achieved with the first approach.
+The second approach was created to test whether the model could use the information from two different prompts, and be able to link them. The first prompt-response pair links the name of the attack with its description, and the second associates the description to the rule. In case the linking is successful and that it provided the name of the attack, the chat bot should then be able to generate a syntactically and technically correct rule. 
+The following are examples of prompt-response pairs produced for constructing the A2 dataset (the first pair associates the name of the attack with the description, while the second associates the description with the rule):
+\begin{itemize}
+    \item First Prompt-Response Pair Example:
+    \begin{quote}
+        \textbf{Prompt:} \textit{What is a Local Area Network Denial (LAND) attack?} \\
+        \textbf{Response:} \textit{It is an attack in which the attacker sets the source and destination information of a TCP segment to be the same.}
+    \end{quote}
+    \item Second Prompt-Response Pair Example:
+    \begin{quote}
+        \textbf{Prompt:} \textit{Write an iptable rule that avoids an attack in which the attacker sets the source and destination information of a TCP segment to be the same.} \\
+        \textbf{Response:} \texttt{iptables -A INPUT -s <your\_network\_IP> -d <your\_network\_IP> -j DROP}.
+    \end{quote}
+\end{itemize}
+When fine-tuned with the A2 dataset, Mistral 7B achieved a success rate of 61\%, showing that the model was indeed capable of linking different prompt-response pairs to an extent, though the results were inferior to those achieved with the first approach.
 
 \subsection{Approach 3}
-The last set of experiments (using approach A3) aimed at verifying the capability of the model in learning the syntax of the rules through simple and generic \textit{iptables} and \textit{Snort} rules fed in the fine-tuning process, to then verify if the model was able to extrapolate those simpler rules to more complex or different prompts (\textit{i.e.}, those required for the previously mentioned attacks). This third fine-tuning approach also yielded partially successful results, with a total of 79\% of correct answers. The analysis of the remaining 21\% of answers offers an insight into several other aspects. Some of the misses were due to small syntactic mistakes, such as the use of a comma instead of a semicolon when separating \textit{Snort} rule options. Others created rules with different protocols in the same rule, which cannot happen in either \textit{iptables} or \textit{Snort} (one needs to create different rules in such cases). While it is possible to have multiple flags and/or ports in a single rule, the model assumed that multiple protocols could also be used in the same rule. The following is an example of both of these behaviours:
+The last set of experiments (using approach A3) aimed at verifying the capability of the model in learning the syntax of the rules through simple and generic \textit{iptables} and \textit{Snort} rules fed in the fine-tuning process, to then verify if the model was able to extrapolate those simpler rules to more complex or different prompts (\textit{i.e.}, those required for the previously mentioned attacks). The following are
+examples of Prompt-Response pairs produced for constructing the A3 dataset (notice that the rules are not specific to any attack):
+\begin{quote}
+    \textbf{Prompt: } \textit{Write a snort rule to alert IP packets from an IP
+address.}
+
+\textbf{Response:}\begin{verbatim}
+alert ip <source_ip> any -> any any
+(msg:’packet from source ip <source_ip>’;)
+\end{verbatim}
+
+    \textbf{Prompt: } \textit{Write a snort rule to alert udp packets to an ip address.}
+
+\textbf{Response:}\begin{verbatim}
+alert udp any any -> <destination_ip>
+any (msg:’packet to destination IP
+<destination_ip>’;).
+\end{verbatim}
+
+\end{quote}
+
+This third fine-tuning approach also yielded partially successful results, with a total of 79\% of correct answers. The analysis of the remaining 21\% of answers offers an insight into several other aspects. Some of the misses were due to small syntactic mistakes, such as the use of a comma instead of a semicolon when separating \textit{Snort} rule options. Others created rules with different protocols in the same rule, which cannot happen in either \textit{iptables} or \textit{Snort} (one needs to create different rules in such cases). While it is possible to have multiple flags and/or ports in a single rule, the model assumed that multiple protocols could also be used in the same rule. The following is an example of both of these behaviours:
 
 \begin{quote}
-\textbf{Question:} Write a snort rule that alerts TCP and UDP packets with a stateless flow, detection filter is track by\_dst, count 50 and 10 seconds.
+\textbf{Question:} \textit{Write a snort rule that alerts TCP and UDP packets with a stateless flow, detection filter is track by\_dst, count 50 and 10 seconds.}
 
-\textbf{Correct Response:}
-\begin{verbatim}
+\textbf{Correct Response:}\begin{verbatim}
 alert tcp any any -> any any (flow:stateless; 
 detection_filter: track by_dst, count 50, 
 seconds 10; msg: "Possible Low Orbit Ion 
@@ -264,8 +315,7 @@ seconds 10; msg: "Possible Low Orbit Ion
 Cannon (LOIC) Attack";)
 \end{verbatim}
 
-\textbf{Answer Given:}
-\begin{verbatim}
+\textbf{Answer Given:}\begin{verbatim}
 alert tcp, udp any any -> any any 
 (flow:stateless, detection_filter: track by_dst,
 count 50, seconds 10; msg: "Possible Low 
@@ -275,10 +325,13 @@ Orbit Ion Cannon (LOIC) Attack";)
 As can be seen in the example above, between the definition of the flow and the detection filter, there is a comma where a semicolon should be, and the same rule is mentioning both protocols at the same time (the Transmission Control Protocol (TCP) and the User Datagram Protocol (UDP)), which is not allowed in \textit{Snort}. This means the model potentially generalized this behaviour from other scenarios.
 
 \subsection{Differences in Handling Iptables and Snort After Fine-tuning}
-The preliminary analysis (prior to fine-tuning, described in subsection 3.2.2) emphasized that models were better suited for the generation of rules for \textit{iptables} (in comparison with \textit{Snort}). After fine-tuning and looking into the amount of correct answers for the two systems separately, \textit{iptables} has a total of 73\% of correct answers, while \textit{Snort} achieved a score of 86\%, which comprises a turn-around. This indicates that the fine-tuning process was particularly beneficial for \textit{Snort} rules. This can be explained by the larger number of \textit{Snort} elements in the fine-tuning datasets, when compared to \textit{iptables}. This occurs because an IDS has a broader scope of application than a firewall (\textit{Snort} can be applied to a broader range of attacks). It can be concluded that the syntax of both types of rules (for \textit{iptables} and \textit{Snort}) were learned during the fine-tuning, thus reducing the initial gap.
+The preliminary analysis (prior to fine-tuning, described in subsection ~\ref{sec:fineTuning}) emphasized that models were better suited for the generation of rules for \textit{iptables} (in comparison with \textit{Snort}). After fine-tuning and looking into the amount of correct answers for the two systems separately, \textit{iptables} has a total of 73\% of correct answers, while \textit{Snort} achieved a score of 86\%, which comprises a turn-around. This indicates that the fine-tuning process was particularly beneficial for \textit{Snort} rules. This can be explained by the larger number of \textit{Snort} elements in the fine-tuning datasets, when compared to \textit{iptables}. This occurs because an IDS has a broader scope of application than a firewall (\textit{Snort} can be applied to a broader range of attacks). It can be concluded that the syntax of both types of rules (for \textit{iptables} and \textit{Snort}) were learned during the fine-tuning, thus reducing the initial gap.
 
 \subsection{ROUGE-1 Scores Between Mistral-7B Models}
 Recall-Oriented Understudy for Gisting Evaluation (ROUGE) \cite{Lin04} is typically used to evaluate the similarity between the answers given by the chat bots and the correct answers. ROUGE-1 is an evaluation metric that specifically compares the common words between the expected and outputted answers. Using the python library in \cite{Tardy21}, the values for recall, precision, and F1-score included in Table \ref{tab:rouge} were obtained for the different approaches discussed in the paper. These metrics provide additional means to understand the obtained results, namely on how close the models were to the correct answers (even when not fully correct). The values in the table emphasize that the improvements after fine-tuning are significant overall. Other noteworthy results include the difference between the recall and precision values obtained for approach 1 and the general low values obtained for approach 3. In the experiments concerning the approach 1, the answers were more descriptive (included more generated explanatory text around the rule), thus leading to a lower precision. This was even worse before fine-tuning. The high recall is on par with the high success rate. In the experiments concerning the approach 3, the produced outputs have more generic descriptions in the \texttt{msg} part of the rules, as the chat bots learned from more simple and generic prompt-response pairs.
+
+\section{Conclusions and Future Work}\label{sec:conclusion}
+The preliminary evaluation of chat bots presented in this paper demonstrated their inability to write correct and efficient rules that can be directly applied. This should at least degenerate in the need to carefully consider the outputs of currently available chat bots. The different fine-tuning approaches were overall successful, leading to the conclusion that fine-tuning is a sufficient approach when considering problems of a specialized nature such as the one 
 
 \begin{table}[h]
   \caption{Rouge-1 Scores Between Mistral-7B Models.}
@@ -295,8 +348,7 @@ Recall-Oriented Understudy for Gisting Evaluation (ROUGE) \cite{Lin04} is typica
   \end{tabular}
 \end{table}
 
-\section{Conclusions and Future Work}
-The preliminary evaluation of chat bots presented in this paper demonstrated their inability to write correct and efficient rules that can be directly applied. This should at least degenerate in the need to carefully consider the outputs of currently available chat bots. The different fine-tuning approaches were overall successful, leading to the conclusion that fine-tuning is a sufficient approach when considering problems of a specialized nature such as the one addressed herein. Mistral 7B was fine-tuned up to a point that it can be considered useful to produce rules for \textit{iptables} and \textit{Snort}, with enough confidence to suggest its utilization for that purpose, provided that the outputs are thoroughly analysed by a human specialist before being applied.
+addressed herein. Mistral 7B was fine-tuned up to a point that it can be considered useful to produce rules for \textit{iptables} and \textit{Snort}, with enough confidence to suggest its utilization for that purpose, provided that the outputs are thoroughly analysed by a human specialist before being applied.
 
 Three approaches to building datasets to fine-tune an LLM into learning how to produce \textit{Snort} and \textit{iptables} rules were tested in the scope of this work. The first and second approaches are more limited to the attacks and systems they know, while the third approach favors the ability of the models to extrapolate results. Nonetheless, the third approach relies more on the prompt engineer to have more specific knowledge on cybersecurity, as the queries would have to be closer to the output.
 
